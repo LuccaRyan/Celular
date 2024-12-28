@@ -1,36 +1,25 @@
 const express = require('express');
-const http = require('http');
-const socketIo = require('socket.io');
+const path = require('path');
+const { exec } = require('child_process');
 
 const app = express();
-const server = http.createServer(app);
-const io = socketIo(server);
 
-let isScreenBlack = false; // Estado inicial
+// Serve os arquivos estáticos da pasta 'public'
+app.use(express.static(path.join(__dirname, 'public')));
 
-// Servir arquivos estáticos
-app.use(express.static('public'));
-
-// WebSocket para sincronização
-io.on('connection', (socket) => {
-    console.log('Novo cliente conectado.');
-
-    // Envia estado inicial ao cliente
-    socket.emit('screenState', isScreenBlack);
-
-    // Escuta mudança de estado
-    socket.on('toggleScreen', (state) => {
-        isScreenBlack = state;
-        io.emit('screenState', isScreenBlack); // Notifica todos os clientes
-    });
-
-    socket.on('disconnect', () => {
-        console.log('Cliente desconectado.');
-    });
+// Endpoint para bloquear a tela
+app.post('/lock', (req, res) => {
+  exec('rundll32.exe user32.dll,LockWorkStation', (err, stdout, stderr) => {
+    if (err) {
+      res.status(500).send('Erro ao bloquear a tela');
+      return;
+    }
+    res.send('Tela bloqueada com sucesso');
+  });
 });
 
-// Inicia o servidor
+// Configurar a porta do servidor
 const PORT = 3000;
-server.listen(PORT, () => {
-    console.log(`Servidor rodando na porta ${PORT}`);
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
 });

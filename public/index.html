@@ -1,17 +1,21 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="pt-br">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Tela</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Controle Remoto - Bloquear Tela</title>
 </head>
 <body>
-    <div class="container">
-        <h1>Controle de Tela</h1>
-        <button id="toggleButton">Desligar Tela do PC</button>
-    </div>
-    <script src="/socket.io/socket.io.js"></script>
-    <script src="script.js"></script>
+    <h1>Controle Remoto - Bloquear Tela</h1>
+    <button id="lockBtn">Bloquear Tela</button>
+
+    <script>
+        document.getElementById('lockBtn').addEventListener('click', () => {
+            fetch('/lock', { method: 'POST' })
+                .then(response => response.text())
+                .then(data => alert(data))
+                .catch(err => alert('Erro ao enviar comando'));
+        });
+    </script>
 </body>
 </html>
